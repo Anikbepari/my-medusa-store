@@ -25,7 +25,7 @@ jobs:
       with:
         host: 3.88.91.83
         username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
+        password: anik
         script: |
           cd ~/my-medusa-store
           git pull origin main
