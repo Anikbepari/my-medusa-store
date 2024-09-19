@@ -23,7 +23,7 @@ jobs:
     - name: SSH into EC2 and deploy Medusa
       uses: appleboy/ssh-action@v0.1.4
       with:
-        host: 54.80.207.7
+        host: 3.88.91.83
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
