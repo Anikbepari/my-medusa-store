@@ -43,4 +43,4 @@ jobs:
           # Build and restart the Medusa app
           npm run build &&
           pm2 restart medusa-app || pm2 start npm --name 'medusa-app' -- start
-          "
+          "
