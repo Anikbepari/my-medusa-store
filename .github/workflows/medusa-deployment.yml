@@ -1,33 +1,46 @@
-name: Deploy Medusa to EC2
+name: Deploy Medusa to-EC2-final-test
 
 on:
   push:
     branches:
-      - main
+      - main  
 
 jobs:
   deploy:
+    name: Deploy Medusa on EC2 using Github actions
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '18'
+      - name: Install SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
 
-    - name: Install dependencies
-      run: npm install
+      - name: Deploy Medusa to EC2
+        run: |
+          ssh -o StrictHostKeyChecking=no ubuntu@3.88.91.83 "
+          # Navigate to the app directory
+          cd /home/ubuntu/PearlThoughts-task/my-medusa-store &&
+          
+          # Pull the latest code
+          git pull origin main &&
 
-    - name: SSH into EC2 and deploy Medusa
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: 3.88.91.83
-        username: ubuntu
-        password: anik
-        script: |
-          cd ~/my-medusa-store
-          git pull origin main
-          npm install
-          medusa develop &
+          # Step 3: Install PM2 globally if it's not already installed
+          sudo npm install pm2@latest -g &&
+          
+          # Reinstall dependencies if needed
+          npm install &&
+          
+          # Ensure PostgreSQL is running
+          sudo systemctl start postgresql &&
+          
+          # Run migrations if required
+          npx medusa migrations run &&
+          
+          # Build and restart the Medusa app
+          npm run build &&
+          pm2 restart medusa-app || pm2 start npm --name 'medusa-app' -- start
+          "
